@@ -1,0 +1,127 @@
+diff --git a/js/apps/admin-ui/src/realm-settings/event-config/EventsTab.tsx b/js/apps/admin-ui/src/realm-settings/event-config/EventsTab.tsx
+index 0d3e4edd2c..83a78e1cb7 100644
+--- a/js/apps/admin-ui/src/realm-settings/event-config/EventsTab.tsx
++++ b/js/apps/admin-ui/src/realm-settings/event-config/EventsTab.tsx
+@@ -3,6 +3,7 @@ import type RealmRepresentation from "@keycloak/keycloak-admin-client/lib/defs/r
+ import { useAlerts, useFetch } from "@keycloak/keycloak-ui-shared";
+ import {
+   AlertVariant,
++  Button,
+   ButtonVariant,
+   PageSection,
+   Tab,
+@@ -47,7 +48,7 @@ export const EventsTab = ({ realm }: EventsTabProps) => {
+   const [events, setEvents] = useState<RealmEventsConfigRepresentation>();
+   const [type, setType] = useState<EventsType>();
+   const [addEventType, setAddEventType] = useState(false);
+-
++  const [EventsToBeRemoved, setEventsToBeRemoved] = useState<EventType[]>([]);
+   const { addAlert, addError } = useAlerts();
+   const { realm: realmName, refresh: refreshRealm } = useRealm();
+ 
+@@ -149,6 +150,14 @@ export const EventsTab = ({ realm }: EventsTabProps) => {
+     refresh();
+   };
+ 
++  const removeEventTypes = async (eventTypes: EventType[]) => {
++    const eventTypesToRemove = eventTypes.map((type) => type.id);
++    const disabledEvents = events!.enabledEventTypes?.filter(
++      (AvailableEvent) => !eventTypesToRemove.includes(AvailableEvent),
++    );
++    await addEvents(disabledEvents);
++  };
++
+   return (
+     <>
+       <DeleteConfirm />
+@@ -186,7 +195,7 @@ export const EventsTab = ({ realm }: EventsTabProps) => {
+           <PageSection>
+             <FormAccess
+               role="manage-events"
+-              isHorizontal
++              isHorizontal={true}
+               onSubmit={handleSubmit(save)}
+             >
+               <EventConfigForm
+@@ -201,14 +210,9 @@ export const EventsTab = ({ realm }: EventsTabProps) => {
+             <EventsTypeTable
+               key={tableKey}
+               addTypes={() => setAddEventType(true)}
++              removeTypes={() => removeEventTypes(EventsToBeRemoved)}
+               eventTypes={events?.enabledEventTypes || []}
+-              onDelete={(value) => {
+-                const enabledEventTypes = events?.enabledEventTypes?.filter(
+-                  (e) => e !== value.id,
+-                );
+-                addEvents(enabledEventTypes);
+-                setEvents({ ...events, enabledEventTypes });
+-              }}
++              onSelect={(selected) => setEventsToBeRemoved(selected)}
+             />
+           </PageSection>
+         </Tab>
+@@ -231,6 +235,15 @@ export const EventsTab = ({ realm }: EventsTabProps) => {
+               />
+             </FormAccess>
+           </PageSection>
++          <PageSection>
++            <EventsTypeTable
++              key={tableKey}
++              addTypes={() => setAddEventType(true)}
++              removeTypes={() => removeEventTypes(EventsToBeRemoved)}
++              eventTypes={events?.enabledEventTypes || []}
++              onSelect={(selected) => setEventsToBeRemoved(selected)}
++            />
++          </PageSection>
+         </Tab>
+       </Tabs>
+     </>
+diff --git a/js/apps/admin-ui/src/realm-settings/event-config/EventsTypeTable.tsx b/js/apps/admin-ui/src/realm-settings/event-config/EventsTypeTable.tsx
+index 6a599e6b90..eec58857eb 100644
+--- a/js/apps/admin-ui/src/realm-settings/event-config/EventsTypeTable.tsx
++++ b/js/apps/admin-ui/src/realm-settings/event-config/EventsTypeTable.tsx
+@@ -12,6 +12,7 @@ type EventsTypeTableProps = {
+   ariaLabelKey?: string;
+   eventTypes: string[];
+   addTypes?: () => void;
++  removeTypes?: () => void;
+   onSelect?: (value: EventType[]) => void;
+   onDelete?: (value: EventType) => void;
+ };
+@@ -20,6 +21,7 @@ export function EventsTypeTable({
+   ariaLabelKey = "userEventsRegistered",
+   eventTypes,
+   addTypes,
++  removeTypes,
+   onSelect,
+   onDelete,
+ }: EventsTypeTableProps) {
+@@ -38,11 +40,24 @@ export function EventsTypeTable({
+       onSelect={onSelect ? onSelect : undefined}
+       canSelectAll={!!onSelect}
+       toolbarItem={
+-        addTypes && (
++        addTypes &&
++        removeTypes && (
+           <ToolbarItem>
+-            <Button id="addTypes" onClick={addTypes} data-testid="addTypes">
+-              {t("addSavedTypes")}
+-            </Button>
++            <ToolbarItem>
++              <Button id="addTypes" onClick={addTypes} data-testid="addTypes">
++                {t("addSavedTypes")}
++              </Button>
++            </ToolbarItem>
++            <ToolbarItem>
++              <Button
++                id="removeTypes"
++                onClick={removeTypes}
++                isDisabled={onSelect?.length === undefined}
++                data-testid="removeTypes"
++              >
++                {t("removeSelectedTypes")}
++              </Button>
++            </ToolbarItem>
+           </ToolbarItem>
+         )
+       }
