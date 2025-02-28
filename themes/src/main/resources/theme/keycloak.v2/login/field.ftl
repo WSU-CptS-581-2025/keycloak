@@ -41,14 +41,14 @@
   </#if>
 </#macro>
 
-<#macro input name label value="" required=false autocomplete="off" fieldName=name error=kcSanitize(messagesPerField.get(fieldName))?no_esc autofocus=false>
-  <@group name=name label=label error=error required=required>
-    <span class="${properties.kcInputClass} <#if error?has_content>${properties.kcError}</#if>">
-        <input id="${name}" name="${name}" value="${value}" type="text" autocomplete="${autocomplete}" <#if autofocus>autofocus</#if>
-                aria-invalid="<#if error?has_content>true</#if>"/>
-        <@errorIcon error=error/>
-    </span>
-  </@group>
+<#macro input name label value="" required=false autocomplete="off" fieldName=name error=kcSanitize(messagesPerField.get(fieldName))?no_esc autofocus=false inputType="text">
+    <@group name=name label=label error=error required=required>
+        <span class="${properties.kcInputClass} <#if error?has_content>${properties.kcError}</#if>">
+            <input id="${name}" name="${name}" value="${value}" type="${inputType}" autocomplete="${autocomplete}" <#if autofocus>autofocus</#if>
+                    aria-invalid="<#if error?has_content>true</#if>"/>
+            <@errorIcon error=error/>
+        </span>
+    </@group>
 </#macro>
 
 <#macro password name label value="" required=false forgotPassword=false fieldName=name error=kcSanitize(messagesPerField.get(fieldName))?no_esc autocomplete="off" autofocus=false>
