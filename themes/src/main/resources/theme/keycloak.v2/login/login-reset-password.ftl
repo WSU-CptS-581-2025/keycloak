@@ -18,7 +18,7 @@
 
         </form>
     <#elseif section = "info" >
-        <div class="${properties.kcMarginTopClass}">
+        <div class="pf-v5-u-mt-lg">
             <#if realm.duplicateEmailsAllowed>
                 ${msg("emailInstructionUsername")}
             <#else>
