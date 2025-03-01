@@ -116,6 +116,9 @@ export const ResetPasswordDialog = ({
         AlertVariant.success,
       );
       refresh();
+
+      isResetPassword = false;
+
     } catch (error) {
       addError(
         isResetPassword ? "resetPasswordError" : "savePasswordError",
