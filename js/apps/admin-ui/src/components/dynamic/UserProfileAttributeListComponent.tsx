@@ -55,7 +55,7 @@ export const UserProfileAttributeListComponent = ({
     >
       <KeySelect
         name={convertedName}
-        rules={required ? { required: true } : {}}
+        rules={{ required: true }}
         selectItems={convert(config)}
       />
       {errors[convertedName!] && <FormErrorText message={t("required")} />}

@@ -17,6 +17,7 @@ export const StringComponent = ({
       label={t(label!)}
       labelIcon={t(helpText!)}
       data-testid={name}
+      rules={{ required: t("required") }}
       {...props}
     />
   );
