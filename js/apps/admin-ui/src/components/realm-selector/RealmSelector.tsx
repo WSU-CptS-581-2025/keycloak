@@ -134,12 +134,12 @@ export const RealmSelector = ({ onViewAll }: RealmSelectorProps) => {
   );
 
   const sortedRealms = useMemo(
-    () =>
-      localeSort(
-        realms.filter((r) => !recentRealmsList.includes(r.name)),
-        mapByKey("name"),
-      ),
-    [recentRealmsList, realms],
+      () =>
+          realms.sort((a, b) => {
+            if (b.name === realm) return 1;
+            if (recentRealms.includes(b.name)) return 1;
+            return a.name.localeCompare(b.name, a.getLocale());
+          }),
   );
 
   const realmDisplayName = useMemo(
