@@ -890,6 +890,32 @@ public class RegisterTest extends AbstractTestRealmKeycloakTest {
                 .error(Errors.GENERIC_AUTHENTICATION_ERROR).assertEvent();
     }
 
+    public void testTrimEmail() {configureRegistrationFlowWithCustomRegistrationPageForm(UUID.randomUUID().toString(),
+            AuthenticationExecutionModel.Requirement.REQUIRED);
+
+        try {
+            loginPage.open();
+            loginPage.clickRegister();
+            registerPage.assertCurrent();
+
+            String userInputEmail = "test@example.com  ";
+            String expectedEmail = "test@example.com ";
+
+            registerPage.register("firstName", "lastName", userInputEmail,
+                    "userTrimEmail", "password", "password", null, true, null);
+
+            assertEquals(RequestType.AUTH_RESPONSE, appPage.getRequestType());
+
+            String userId = events.expectRegister("userTrimEmail", expectedEmail)
+                    .assertEvent().getUserId();
+            UserRepresentation user = assertUserRegistered(userId, "userTrimEmail", expectedEmail);
+
+            Assert.assertEquals(expectedEmail, user.getEmail());
+        } finally {
+            configureRegistrationFlowWithCustomRegistrationPageForm(UUID.randomUUID().toString());
+        }
+    }
+
     protected RealmAttributeUpdater configureRealmRegistrationEmailAsUsername(final boolean value) {
         return getRealmAttributeUpdater().setRegistrationEmailAsUsername(value);
     }
